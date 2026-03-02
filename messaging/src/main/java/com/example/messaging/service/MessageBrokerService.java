@@ -1,5 +1,6 @@
 package com.example.messaging.service;
 
+import com.example.messaging.config.QueueProperties;
 import com.example.messaging.config.RabbitMQConfig;
 import com.example.messaging.dto.EmailMessage;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class MessageBrokerService {
 
     private final RabbitTemplate rabbitTemplate;
+    private final QueueProperties queueProperties;
 
     public void sendEmailMessage(String email, String name) {
 
@@ -22,7 +24,7 @@ public class MessageBrokerService {
                 new EmailMessage(email, messageContent);
 
         rabbitTemplate.convertAndSend(
-                RabbitMQConfig.EMAIL_QUEUE,
+                queueProperties.getEmailQueue(),
                 emailMessage
         );
     }

@@ -9,23 +9,23 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
 public class RabbitMQConfig {
+    private final QueueProperties queueProperties;
 
-    // =========================
-    // QUEUE NAMES
-    // =========================
-    public static final String EMAIL_QUEUE = "bulk.email.queue";
-    public static final String EXTERNAL_PAYMENT_QUEUE = "external.payment.queue";
-    public static final String PAYMENT_DLQ = "external.payment.dlq";
+
+    public RabbitMQConfig(QueueProperties queueProperties) {
+        this.queueProperties = queueProperties;
+    }
 
     // =========================
     // EMAIL QUEUE
     // =========================
     @Bean
     public Queue emailQueue() {
-        return new Queue(EMAIL_QUEUE, true);
+        return new Queue(queueProperties.getEmailQueue(), true);
     }
 
     // =========================
@@ -33,7 +33,7 @@ public class RabbitMQConfig {
     // =========================
     @Bean
     public Queue paymentDeadLetterQueue() {
-        return new Queue(PAYMENT_DLQ, true);
+        return new Queue(queueProperties.getPaymentDlq(), true);
     }
 
     // =========================
@@ -41,9 +41,9 @@ public class RabbitMQConfig {
     // =========================
     @Bean
     public Queue externalPaymentQueue() {
-        return QueueBuilder.durable(EXTERNAL_PAYMENT_QUEUE)
+        return QueueBuilder.durable(queueProperties.getExternalPaymentQueue())
                 .withArgument("x-dead-letter-exchange", "")
-                .withArgument("x-dead-letter-routing-key", PAYMENT_DLQ)
+                .withArgument("x-dead-letter-routing-key", queueProperties.getPaymentDlq())
                 .build();
     }
     @Bean
@@ -89,11 +89,11 @@ public class RabbitMQConfig {
 
         factory.setAdviceChain(
                 RetryInterceptorBuilder.stateless()
-                        .maxAttempts(5)          // retry 5 times
+                        .maxAttempts(5)
                         .backOffOptions(
-                                60000,           // 60 seconds initial delay
-                                1.0,             // multiplier
-                                60000            // max delay
+                                60000,
+                                1.0,
+                                60000
                         )
                         .build()
         );

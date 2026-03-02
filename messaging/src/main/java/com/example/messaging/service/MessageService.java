@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static jdk.internal.net.http.common.Utils.isValidName;
+
 @Slf4j
 @Service
 public class MessageService {
@@ -134,6 +136,10 @@ public class MessageService {
             log.debug("Skipping row {} - empty email", row.getRowNum());
             return;
         }
+        if (getCellValue(row.getCell(columnIndex.get("name"))).isEmpty()) {
+            log.debug("Skipping row {} - empty email", row.getRowNum());
+            return;
+        }
 
         if (!isValidEmail(email)) {
             log.warn("Invalid email format at row {}: {}", row.getRowNum(), email);
@@ -148,6 +154,7 @@ public class MessageService {
 
         messageBrokerService.sendEmailMessage(email, name);
     }
+
 
     // ===============================
     // Email Validator

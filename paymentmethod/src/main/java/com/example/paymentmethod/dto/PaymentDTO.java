@@ -11,7 +11,7 @@ public class PaymentDTO {
     private String paymentId;
 
     @NotBlank(message = "Payer name is required")
-    private String payerName;
+    private String email;
 
     @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be greater than zero")

@@ -28,18 +28,18 @@ public class PaymentService {
     public ResponseEntity<?> createPayment(PaymentDTO paymentDTO) {
 
         log.info("Starting payment processing for paymentId={} by payer={}",
-                paymentDTO.getPaymentId(), paymentDTO.getPayerName());
+                paymentDTO.getPaymentId(), paymentDTO.getEmail());
 
         // Validate email format
-        if (!EMAIL_PATTERN.matcher(paymentDTO.getPayerName()).matches()) {
-            log.warn("Invalid payer name/email format: {}", paymentDTO.getPayerName());
-            throw new RuntimeException("Invalid payer name/email format: " + paymentDTO.getPayerName());
+        if (!EMAIL_PATTERN.matcher(paymentDTO.getEmail()).matches()) {
+            log.warn("Invalid payer name/email format: {}", paymentDTO.getEmail());
+            throw new IllegalArgumentException("Invalid payer email format: " + paymentDTO.getEmail());
         }
         // Process with 90% success probability
         boolean success = processPaymentWithProbability();
         if (!success) {
             log.warn("Payment processing failed for paymentId={}", paymentDTO.getPaymentId());
-            throw new RuntimeException("Payment failed due to processing error.");
+            throw new IllegalArgumentException("Payment failed due to processing error.");
         }
         // Generate transaction ID
         String transactionId = "TXN-" + UUID.randomUUID();
@@ -49,7 +49,7 @@ public class PaymentService {
         PaymentTransaction transaction = PaymentTransaction.builder()
                 .transactionId(transactionId)
                 .paymentId(paymentDTO.getPaymentId())
-                .payerName(paymentDTO.getPayerName())
+                .payerName(paymentDTO.getEmail())
                 .amount(paymentDTO.getAmount())
                 .currency(paymentDTO.getCurrency())
                 .status("SUCCESS")
