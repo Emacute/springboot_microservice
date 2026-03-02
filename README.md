@@ -72,7 +72,7 @@ POST /api/payments – sends payment data with fields such as amount, currency, 
 GET /api/payments/{id} – retrieves payment information by ID.
 
 A Postman invite link is available to import the collection:
-Join Postman Collection
+https://app.getpostman.com/join-team?invite_code=7aade01f3ed484fb8db9a20aae558dfe3da1a4bdabff4a100017f035ffeb6199&target_code=ffddcca30229940080b8ce0ae54d9304
 
 5. Payment Flow
 
