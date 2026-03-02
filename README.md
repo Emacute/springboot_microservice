@@ -1,91 +1,97 @@
 Messaging & Payment Microservice
 1. Project Overview
 
-This microservice handles payments and messaging via RabbitMQ.
+This project consists of two microservices: Messaging and Payment, which communicate asynchronously using RabbitMQ.
+
+Messaging Service handles sending messages, such as emails or SMS, to users.
+
+Payment Service handles processing payments.
 
 Payments are received via REST API, stored in PostgreSQL, and published to RabbitMQ.
 
-RabbitMQ delivers messages asynchronously to consumers.
+RabbitMQ delivers messages asynchronously to consumers for processing.
 
-Java version 17 .
+The project is built using Java 17 and Spring Boot 3.5.11.
+
 2. File / Directory Structure
-messaging/ 
-│
-├─ src/main/java/com/example/messaging/
-│   ├─ controller/ 
-│   ├─ service/
-│   ├─ dto/  
-│   ├─ model/ 
-│   ├─ repository/ 
-│   └─ config/
-│
-├─ src/main/resources/
-│   ├─ application.properties
-│
-└─ pom.xml
+Messaging Service
 
-payment/ 
-│
-├─ src/main/java/com/example/payment/
-│   ├─ controller/ 
-│   ├─ service/
-│   ├─ dto/  
-│   ├─ model/ 
-│   ├─ repository/ 
-│   └─ config/
-│
-├─ src/main/resources/
-│   ├─ application.properties
-│
-└─ pom.xml
+The messaging service directory contains source code under src/main/java/com/example/messaging/ with the following structure:
 
+controller/ – contains REST controllers.
 
-rabbitmq/ 
-│
-├─ .env
-│
-└─ docker-compose.yml
+service/ – contains business logic and RabbitMQ integration.
 
+dto/ – contains Data Transfer Objects.
 
+model/ – contains JPA entities for the database.
 
-RUn RabbitMQ docker docker-compose up -d
+repository/ – contains Spring Data JPA repositories.
 
-Access UI: http://localhost:15672
+config/ – contains configurations such as RabbitMQ and security.
 
-Login: guest / guest
+Resources such as application.properties are under src/main/resources/. The project also contains a pom.xml for dependencies.
 
-4. Running the Microservice
+Payment Service
 
-create your database for both message and payment 
+The payment service directory has a similar structure under src/main/java/com/example/payment/ with:
 
-Run the microservices
+controller/ – REST controllers.
 
-mvn clean install
-mvn spring-boot:run
+service/ – business logic and RabbitMQ integration.
 
-MESSAGE BASE URL: http://localhost:8081
-PAYMENT BASE URL: http://localhost:8082
+dto/ – Data Transfer Objects.
 
+model/ – JPA entities.
 
+repository/ – Spring Data JPA repositories.
 
-POSTMAN DIRECTORY
+config/ – configuration files.
 
-5. Example Postman Collection
+Resources such as application.properties are under src/main/resources/, and there is a pom.xml for dependencies.
 
+RabbitMQ Docker Setup
 
-Request Type	URL	Body Example
-POST	/api/payments	{ "amount": 100, "currency": "USD", "email": "user@test.com" }
-GET	/api/payments/{id}	N/A
+The RabbitMQ setup contains a .env file and docker-compose.yml.
 
-Postman Invite Link:
-https://app.getpostman.com/join-team?invite_code=7aade01f3ed484fb8db9a20aae558dfe3da1a4bdabff4a100017f035ffeb6199&target_code=11ef339cb756adfa6c4b87777b3e9570
+RabbitMQ must be running to allow communication between the microservices. Its management UI can be accessed via a browser at http://localhost:15672
+ with login credentials guest and guest.
 
-6. Payment Flow
+3. Running the Microservices
 
-Client sends payment request via POST /api/v1/payment/create.
+Before starting, databases must be created for both messaging and payment services.
 
-Microservice stores the payment in PostgreSQL.
+Once the databases are ready, the microservices can be started. The Messaging Service runs on port 8081, and the Payment Service runs on port 8082.
 
-Message is sent to RabbitMQ queue (payment.queue).
+4. Example Postman Collection
 
-Consumer listens on the queue and processes the payment asynchronously.
+The following API requests are available for testing:
+
+POST /api/payments – sends payment data with fields such as amount, currency, and email.
+
+GET /api/payments/{id} – retrieves payment information by ID.
+
+A Postman invite link is available to import the collection:
+Join Postman Collection
+
+5. Payment Flow
+
+The client sends a payment request to the payment microservice.
+
+The microservice stores the payment in PostgreSQL.
+
+Payment details are sent to a RabbitMQ queue named payment.queue.
+
+A consumer listens on the queue and processes the payment asynchronously.
+
+The messaging service can consume payment events to notify users by email or other channels.
+
+6. Notes / Tips
+
+RabbitMQ must be running before starting the microservices.
+
+Each microservice has its own database; configuration files must point to the correct database.
+
+Global exception handling is implemented to manage invalid file uploads or invalid data rows.
+
+The messaging service expects Excel uploads containing columns: name, email, and phone.
